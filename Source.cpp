@@ -112,7 +112,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
             insertBeforeTail(Queue->p_tail, board[i][j], i, j);
         }
-        if(CheckQueue)
+        if(CheckQueue(Queue))
         {
             return true;
         }
@@ -137,7 +137,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
             insertBeforeTail(Queue->p_tail, board[i][j], i, j);
         }
-        if(CheckQueue)
+        if(CheckQueue(Queue))
         {
             return true;
         }
@@ -153,7 +153,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         v2 = calVec(firstCorner, secondCorner);
         v3 = calVec(secondCorner, p[1]);
         //Set Queue
-        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
+        for(int i = p[0].row + v1.r, j = p[0].col +v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
             insertBeforeTail(Queue->p_tail, board[i][j], i, j);
         }
         for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
@@ -162,7 +162,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
             insertBeforeTail(Queue->p_tail, board[i][j], i, j);
         }
-        if(CheckQueue)
+        if(CheckQueue(Queue))
         {
             return true;
         }
@@ -187,7 +187,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
             insertBeforeTail(Queue->p_tail, board[i][j], i, j);
         }
-        if(CheckQueue)
+        if(CheckQueue(Queue))
         {
             return true;
         }
@@ -420,7 +420,7 @@ void Client(char **board, Board b){
                         List Queue;
                         if(CheckConect(board, b, p, &Queue)){
                             for(NODE *cursor = Queue.p_head; cursor != nullptr; cursor = cursor->p_next){
-                                cout << "Row: " << cursor->row << " Col: " << cursor->col << endl;
+                                cout << "Key: " << cursor->key << "Row: " << cursor->row << " Col: " << cursor->col << endl;
                             }
                             system("pause");
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] =  ' ';    
