@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <conio.h>
 #include <ctime>
-#define Width 8
+#define Width 5
 using namespace std;
 
 struct Board{
@@ -15,7 +15,61 @@ struct Vector{
 struct Pair{
     int row,col;
 };
+struct NODE{
+    char key;
+    int row, col;
+    NODE* p_next;
+    NODE* p_prev;
+};
 
+struct List{
+    NODE* p_head;
+    NODE* p_tail;
+};
+
+//1. Initialize a NODE from a given integer
+NODE* createNode(char key, int row, int col){
+    NODE *node = new NODE;
+    node->key = key;
+    node->row = row;
+    node->col = col;
+    node->p_next = nullptr;
+    node->p_prev = nullptr;
+    return node; 
+}
+//Create Queue
+void createQueue(List *Queue, Pair *p){
+    Queue->p_head = createNode('#', p[0].row, p[0].col);
+    Queue->p_tail = createNode('#', p[1].row, p[1].col);
+    Queue->p_head->p_next = Queue->p_tail;
+    Queue->p_tail->p_prev = Queue->p_head;
+}
+//Insert before tail
+void insertBeforeTail(NODE* &pTail, char key, int row, int col){
+    NODE *new_node = createNode(key, row, col);
+    NODE *temp = pTail->p_prev;
+    temp->p_next = new_node;
+    new_node->p_prev = temp;
+    new_node->p_next = pTail;
+    pTail->p_prev = new_node;
+}
+//Remove node ater head
+void removeNode(NODE * &Node){
+    NODE *temp = Node->p_prev;
+    temp->p_next = Node->p_next;
+    Node->p_next->p_prev = temp;  
+    delete Node;
+}
+//Remove NODE between 2 Start and End
+void removeAll(List *Queue){
+    NODE * cursor = Queue->p_head->p_next, *temp;
+    while(cursor != Queue->p_tail){
+        temp = cursor;
+        cursor = cursor->p_next;
+        removeNode(temp);
+    }
+}  
+//-----------------------------------------------------------------
 Vector calVec(Pair start, Pair end)
 {
     Vector vec;
@@ -28,48 +82,116 @@ Vector calVec(Pair start, Pair end)
     return vec;
 }
 
-bool CheckI(char **board, Board b, Pair start, Pair end, char chr){
-    Vector vec = calVec(start, end);
-    // if(board[start.row][start.col] != ' '){
-    //     start.col += vec.c;
-    //     start.row += vec.r;
-    // }
-
-    for(int c = start.col, r = start.row; c != end.col || r != end.row; c += vec.c, r += vec.r){
-        if(board[r][c] != ' ' && board[r][c] != chr)
+bool CheckQueue(List* Queue){
+    for(NODE* cursor = Queue->p_head->p_next; cursor != Queue->p_tail; cursor = cursor->p_next){
+        if(cursor->key != ' ')
             return false;
     }
     return true;
 }
 
-bool CheckConect(char **board, Board b, Pair *p){
-    Pair start, end;
-    for(int r = 0; r < b.rows; r++){
+bool CheckConect(char **board, Board b, Pair *p, List *Queue){
+    createQueue(Queue, p);
+    Vector v1, v2, v3;
+    //----------------------------------------------
+    for(int r = p[0].row; r >= 0; r--){
         //Set 2 conner
-        start.col = p[0].col;
-        start.row = r;
-
-        end.col = p[1].col;
-        end.row = r;
-        //CheckI 3 line 
-        if(CheckI(board, b, start, end, board[p[0].row][p[0].col]) 
-            && CheckI(board, b, start, p[0],board[p[0].row][p[0].col]) 
-            && CheckI(board, b, end, p[1],board[p[0].row][p[0].col]))
+        Pair firstCorner = {r, p[0].col};
+        Pair secondCorner = {r, p[1].col};
+        //find Vector;
+        v1 = calVec(p[0], firstCorner);
+        v2 = calVec(firstCorner, secondCorner);
+        v3 = calVec(secondCorner, p[1]);
+        //Set Queue
+        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        if(CheckQueue)
+        {
             return true;
+        }
+        removeAll(Queue);
+    }
+    //------------------------------------------------
+    for(int r = p[0].row; r < b.rows; r++){
+        //Set 2 conner
+        Pair firstCorner = {r, p[0].col};
+        Pair secondCorner = {r, p[1].col};
+        //find Vector;
+        v1 = calVec(p[0], firstCorner);
+        v2 = calVec(firstCorner, secondCorner);
+        v3 = calVec(secondCorner, p[1]);
+        //Set Queue
+        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        if(CheckQueue)
+        {
+            return true;
+        }
+        removeAll(Queue);
     }
 
-    for(int c = 0; c < b.columns; c++){
+    for(int c = p[0].col; c < b.columns; c++){
         //Set 2 conner
-        start.col = c;
-        start.row = p[0].row;
-
-        end.col = c;
-        end.row = p[1].row;
-        //CheckI 3 line 
-        if(CheckI(board, b, start, end,board[p[0].row][p[0].col])
-            && CheckI(board, b, start, p[0],board[p[0].row][p[0].col]) 
-            && CheckI(board, b, end, p[1],board[p[0].row][p[0].col]))
+        Pair firstCorner = {p[0].row, c};
+        Pair secondCorner = {p[1].row, c};
+        //find Vector;
+        v1 = calVec(p[0], firstCorner);
+        v2 = calVec(firstCorner, secondCorner);
+        v3 = calVec(secondCorner, p[1]);
+        //Set Queue
+        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        if(CheckQueue)
+        {
             return true;
+        }
+        removeAll(Queue);
+    }
+
+    for(int c = p[0].col; c >= 0; c--){
+        //Set 2 conner
+        Pair firstCorner = {p[0].row, c};
+        Pair secondCorner = {p[1].row, c};
+        //find Vector;
+        v1 = calVec(p[0], firstCorner);
+        v2 = calVec(firstCorner, secondCorner);
+        v3 = calVec(secondCorner, p[1]);
+        //Set Queue
+        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
+            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+        }
+        if(CheckQueue)
+        {
+            return true;
+        }
+        removeAll(Queue);
     }
     
     return false;
@@ -223,7 +345,7 @@ void Client(char **board, Board b){
     }
 
     //Pair *tracker = new Pair [b.rows*b.columns+1];
-
+    
 
     //----------------------
     bool exist = false;
@@ -295,12 +417,20 @@ void Client(char **board, Board b){
                     drawBoard(table, b, col, row);
                     system("sleep");
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
-                        if(CheckConect(board, b, p)){
+                        List Queue;
+                        if(CheckConect(board, b, p, &Queue)){
+                            for(NODE *cursor = Queue.p_head; cursor != nullptr; cursor = cursor->p_next){
+                                cout << "Row: " << cursor->row << " Col: " << cursor->col << endl;
+                            }
+                            system("pause");
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] =  ' ';    
                             //earse grid
                             erase(table[p[0].row][p[0].col]);
                             erase(table[p[1].row][p[1].col]);
+                            removeAll(&Queue);
                         }
+                        delete Queue.p_head;
+                        delete Queue.p_tail;
                     }
                     //Reset
                     Recolor(table[p[0].row][p[0].col], "\e[45m");
@@ -316,8 +446,6 @@ void Client(char **board, Board b){
         
         //--------
     }
-
-    //delete[] tracker;
         
     for(int i = 0; i < b.rows; i++){
         for(int j = 0; j < b.columns; j++){
