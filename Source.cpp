@@ -3,7 +3,9 @@
 #include <conio.h>
 #include <ctime>
 #include <windows.h>
-#define Width 5
+#define Width 10
+#define CURSOR_COLOR 177
+#define SCREEN_COLOR 5
 using namespace std;
 
 struct Board{
@@ -155,11 +157,12 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         //Set 2 conner
         Queue->firstCorner = {p[0].row, c};
         Queue->secondCorner = {p[1].row, c};
+
         SetQueue(board, p, Queue);
+
         if(CheckQueue(Queue))
-        {
             return true;
-        }
+
         removeAll(Queue);
     }
     //------------------------------------------------
@@ -182,55 +185,32 @@ bool check(char **board, Board b){
 //iprint board
 void drawBoard(string ****table, Board b, int col, int row){
     system("cls");
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    
     //Draw first row 
     string output;
-    for(int j = 0; j < b.columns; j++){
-        for(int c = 0; c < Width; c++){
-            if(table[0][j][0][c].empty())
-                output = ' ';
-            else output = table[0][j][0][c];
-            cout << output << "\e[0m";
-        }
-    }
-    cout << endl;
-    //Draw the rest
-    for(int i = 0; i < b.rows; i++){
-        for(int r = 1; r < 5; r++){
-            for(int j = 0; j < b.columns; j++){
-                for(int c = 0; c < Width; c++){
-                    output.erase();
-                    if(c == Width/2 && r == 5/2){
-                        if(row == i && col == j)
-                            cout << "\e[4;32m" ;
+    for(int r = 0; r < b.rows; r++){
+        for(int i = 0; i < 5; i++){
+            for(int c = 0; c < b.columns; c++){
+                for(int j = 0; j < Width; j++){
+                    if(r == row && c == col){
+                        if(i == 2 && j == Width/2)
+                        SetConsoleTextAttribute(hStdout, CURSOR_COLOR);
                     }
-                    output = table[i][j][r][c];
-                    if((r == 4)  &&  (i+1 != b.rows)){
-                        output = table[i][j][4][c] + table[i+1][j][0][c];
-                        if(output == "--") output = "-";
-                    }
-                    if(c == Width-1 && (j+1 != b.columns)){
-                        output = table[i][j][r][Width-1] + table[i][j+1][r][0];
-                        if(output == "||") output = "|";
-                    }
-                    if(j > 0 && c == 0){
-                        output = " ";
-                    }
-                    if(output.empty() || output == "\e[45m")
-                        output += ' ';
-
-                    cout << output << "\e[0m";
-                }     
+                    cout << table[r][c][i][j];
+                    SetConsoleTextAttribute(hStdout, SCREEN_COLOR);
+                }
             }
             cout << endl;
         }
     }
-    //system("pause");
+    
 }
 //Erase grid
 void erase(string** grid){
     for(int i = 0; i < 5; i++){
         for(int j = 0; j < Width; j++){
-            grid[i][j] = "";
+            grid[i][j] = " ";
         }
     }
 }
@@ -302,23 +282,29 @@ void Client(char **board, Board b){
     //Drawable 2d array
         //create a screen
     string ****table = new string***[b.rows];
-    for(int i = 0; i < b.rows; i++){
-        table[i] = new string**[b.columns];
-        for(int j = 0; j < b.columns; j++){
-            table[i][j] = new string*[5];
-            for(int r = 0; r < 5; r++){
-                table[i][j][r] = new string[Width];
+    for(int r = 0; r < b.rows; r++){
+        table[r] = new string**[b.columns];
+        for(int c = 0; c < b.columns; c++){
+            table[r][c] = new string*[5];
+            for(int i = 0; i < 5; i++){
+                table[r][c][i] = new string[Width];
             }
             //draw Hline
-            for(int c = 1; c < Width-1; c++){
-                table[i][j][0][c] = table[i][j][4][c] = '-';
+            for(int j = 1; j < Width-1; j++){
+                table[r][c][0][j] = table[r][c][4][j] = '-';
             }
-            //draw Vline
-            for(int r = 1; r < 5-1; r++){
-                table[i][j][r][0] = table[i][j][r][Width-1] = "|";
+            //draw row 1-3
+            for(int i = 1; i < 5-1; i++){
+                table[r][c][i][0] = table[r][c][i][Width-1] = "|";
+                for(int j = 1; j < Width-1; j++){
+                    table[r][c][i][j] = ' ';
+                }
             }
+            //Set corner
+            table[r][c][0][0] = table[r][c][0][Width-1] = table[r][c][4][0] = table[r][c][4][Width-1] = ' ';
             //Set value
-            table[i][j][5/2][Width/2] = board[i][j];
+            table[r][c][5/2][Width/2] = board[r][c];
+
         }
     }
 
