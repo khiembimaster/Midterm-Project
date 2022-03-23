@@ -258,7 +258,7 @@ char** createBoard(Board b){
     } 
 // shuffle :v
     srand(time(NULL));
-    for(int i = 0; i < rand()% (b.columns*b.columns)+100; i++){
+    for(int i = 0; i < rand()% (b.columns*b.columns)+20; i++){
         
         x1 = rand()%b.columns + 0;
         y1 = rand()%b.rows + 0;
