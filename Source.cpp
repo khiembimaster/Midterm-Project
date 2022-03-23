@@ -180,88 +180,85 @@ bool check(char **board, Board b){
 
 //DRAW ########################################################################################################################---
 //iprint board
-void drawBoard(string ****table, Board b, int col, int row){
-    system("cls");
-    //Draw first row 
-    string output;
-    for(int j = 0; j < b.columns; j++){
-        for(int c = 0; c < Width; c++){
-            if(table[0][j][0][c].empty())
-                output = ' ';
-            else output = table[0][j][0][c];
-            cout << output << "\e[0m";
+
+void drawH(int columns, int row, char **board, int direct, Board b){
+    char chr;
+    cout << setw(Width/2) << setfill(' ') << left << " ";
+    for(int i = 0; i < columns; i++){
+        
+        if(board[row][i] == ' ')
+        {   
+            if(row+direct >=0 && row+direct < b.rows){
+                if(board[row+direct][i] == ' '){
+                    chr = ' ';
+                }else chr = '-';
+            }
+            else chr = ' ';
         }
+        else chr = '-';
+        cout << " " << setw(Width+2) << setfill(chr) << " ";
     }
     cout << endl;
-    //Draw the rest
+}
+
+void drawV(int columns, int row, char **board, Board b){
+    char chr = '|';
+    cout << setw(Width/2) << setfill(' ') << left << " ";
+    for(int j = 0; j < columns; j++){
+        if(board[row][j] == ' ')
+        {
+            if(j > 0 ){
+                if(board[row][j-1] == ' '){
+                    chr = ' ';
+                }else chr = '|';
+            }else chr = ' ';
+        }
+        else chr = '|';
+        cout << chr << setw(Width+2) << setfill(' ') << " ";
+    }
+    
+    if(board[row][b.columns-1] == ' ')
+    {
+        chr = ' ';
+    }
+    else chr = '|';
+    cout << chr << endl;
+}
+
+void drawBoard(char **board, Board b, int row, int col){
+    system("cls");
+    char chr;
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     for(int i = 0; i < b.rows; i++){
-        for(int r = 1; r < 5; r++){
-            for(int j = 0; j < b.columns; j++){
-                for(int c = 0; c < Width; c++){
-                    output.erase();
-                    if(c == Width/2 && r == 5/2){
-                        if(row == i && col == j)
-                            cout << "\e[4;32m" ;
-                    }
-                    output = table[i][j][r][c];
-                    if((r == 4)  &&  (i+1 != b.rows)){
-                        output = table[i][j][4][c] + table[i+1][j][0][c];
-                        if(output == "--") output = "-";
-                    }
-                    if(c == Width-1 && (j+1 != b.columns)){
-                        output = table[i][j][r][Width-1] + table[i][j+1][r][0];
-                        if(output == "||") output = "|";
-                    }
-                    if(j > 0 && c == 0){
-                        output = " ";
-                    }
-                    if(output.empty() || output == "\e[45m")
-                        output += ' ';
-
-                    cout << output << "\e[0m";
-                }     
+        drawH(b.columns, i, board, -1, b);
+        drawV(b.columns, i, board, b);
+        cout << setw(Width/2) << setfill(' ') << left << " ";
+        for(int j = 0; j < b.columns; j++){
+            if(board[i][j] == ' ')
+            {
+                if(j > 0 ){
+                    if(board[i][j-1] == ' '){
+                        chr = ' ';
+                    }else chr = '|';
+                }else chr = ' ';
             }
-            cout << endl;
+            else chr = '|';
+            cout << chr << " ";
+            if(i == row && j == col){
+                SetConsoleTextAttribute(hStdout, 240);
+            }
+            cout << setw(Width) << right << board[i][j] <<" ";
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
         }
-    }
-    //system("pause");
-}
-//Erase grid
-void erase(string** grid){
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < Width; j++){
-            grid[i][j] = "";
+        if(board[i][b.columns-1] == ' ')
+        {
+            chr = ' ';
         }
+        else chr = '|';
+        cout << chr <<endl;
+        drawV(b.columns, i, board, b);
     }
-}
-//Set color
-void Setcolor(string** grid, string color){
-    for(int r = 1; r < 5-1; r++){
-        for(int c = 1; c < Width-1; c++){
-            grid[r][c].insert(0,color);
-        }
-    }
-}
-//Reset color
-void Recolor(string** grid, string color){
-    for(int r = 1; r < 5-1; r++){
-        for(int c = 1; c < Width-1; c++){
-            if(grid[r][c].size() >= color.size())
-                grid[r][c].erase(0,color.size());
-        }
-    }
-}
-//Draw Path 
-void DrawPath(string ****table, List *Queue){
-    for(NODE* cursor = Queue->p_head; cursor != Queue->p_tail; cursor = cursor->p_next){
-        Setcolor(table[cursor->row][cursor->col], "\e[44m");
-    }
-}
-
-void DeletePath(string ****table, List *Queue){
-    for(NODE* cursor = Queue->p_head; cursor != Queue->p_tail; cursor = cursor->p_next){
-        Recolor(table[cursor->row][cursor->col], "\e[44m");
-    }
+    drawH(b.columns,b.rows-1, board, 1, b);
 }
 
 //CREATE BOARD ###################################################################################################################
@@ -298,33 +295,6 @@ char** createBoard(Board b){
 void Client(char **board, Board b){
     system("cls");
 
-    
-    //Drawable 2d array
-        //create a screen
-    string ****table = new string***[b.rows];
-    for(int i = 0; i < b.rows; i++){
-        table[i] = new string**[b.columns];
-        for(int j = 0; j < b.columns; j++){
-            table[i][j] = new string*[5];
-            for(int r = 0; r < 5; r++){
-                table[i][j][r] = new string[Width];
-            }
-            //draw Hline
-            for(int c = 1; c < Width-1; c++){
-                table[i][j][0][c] = table[i][j][4][c] = '-';
-            }
-            //draw Vline
-            for(int r = 1; r < 5-1; r++){
-                table[i][j][r][0] = table[i][j][r][Width-1] = "|";
-            }
-            //Set value
-            table[i][j][5/2][Width/2] = board[i][j];
-        }
-    }
-
-    //Pair *tracker = new Pair [b.rows*b.columns+1];
-    
-
     //----------------------
     bool exist = false;
     int key_event;
@@ -334,7 +304,7 @@ void Client(char **board, Board b){
 
     while(exist == false){ 
         exist = check(board, b);
-        drawBoard(table, b, col, row);
+        drawBoard(board, b, row, col);
         cout << count;
         //move-----
         key_event = getch();
@@ -374,45 +344,31 @@ void Client(char **board, Board b){
             }
             //Confirm - Space
             case 32:{  
+                List Queue;
                 //Update movement
                 p[count].row = row;
                 p[count].col = col;
                 count++; 
                 cout << (char)7;
                 //Marking 
-                Setcolor(table[row][col], "\e[45m");
-                
+                //Setcolor(table[row][col], "\e[45m");
                 
                 //Control flow
                 if(count == 2){
                     if((p[0].row == p[1].row) && (p[0].col == p[1].col)){
-                        Recolor(table[p[0].row][p[0].col], "\e[45m");
-                        Recolor(table[p[1].row][p[1].col], "\e[45m");
                         count = 0;
                         continue;
                     }
-                    //Upadate Screen
-                    drawBoard(table, b, col, row);
-                    system("sleep");
+                    //drawBoard(table, b, col, row);
+                    //system("sleep");
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
-                        List Queue;
                         if(CheckConect(board, b, p, &Queue)){
-                            DrawPath(table, &Queue);
-                            drawBoard(table, b, col, row);
-                            system("pause");
-                            DeletePath(table, &Queue);
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] =  ' ';    
-                            //earse grid
-                            erase(table[p[0].row][p[0].col]);
-                            erase(table[p[1].row][p[1].col]);
                             removeAll(&Queue);
                         }
                         delete Queue.p_head;
                         delete Queue.p_tail;
                     }
-                    //Reset
-                    Recolor(table[p[0].row][p[0].col], "\e[45m");
-                    Recolor(table[p[1].row][p[1].col], "\e[45m");
                     count = 0;
                 }
     
@@ -425,18 +381,6 @@ void Client(char **board, Board b){
         //--------
     }
         
-    for(int i = 0; i < b.rows; i++){
-        for(int j = 0; j < b.columns; j++){
-            for(int r = 0; r < 5; r++){
-                delete[] table[i][j][r];
-            }
-            delete[] table[i][j];
-        }
-        delete[] table[i];
-    }
-    delete[] table;
-
-    
     
 
 }
