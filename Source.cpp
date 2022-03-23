@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <conio.h>
 #include <ctime>
+#include <windows.h>
 #define Width 5
 using namespace std;
 
@@ -25,6 +26,7 @@ struct NODE{
 struct List{
     NODE* p_head;
     NODE* p_tail;
+    Pair firstCorner, secondCorner;
 };
 
 //1. Initialize a NODE from a given integer
@@ -89,29 +91,32 @@ bool CheckQueue(List* Queue){
     }
     return true;
 }
-
+void SetQueue(char **board, Pair *p, List *Queue){
+    Vector v1, v2, v3;
+    //find Vector;
+    v1 = calVec(p[0], Queue->firstCorner);
+    v2 = calVec(Queue->firstCorner, Queue->secondCorner);
+    v3 = calVec(Queue->secondCorner, p[1]);
+    //Set Queue
+    for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != Queue->firstCorner.row || j != Queue->firstCorner.col; i += v1.r, j += v1.c){
+        insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+    }
+    for(int i = Queue->firstCorner.row, j = Queue->firstCorner.col; i != Queue->secondCorner.row || j != Queue->secondCorner.col; i += v2.r, j += v2.c){
+        insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+    }
+    for(int i = Queue->secondCorner.row, j = Queue->secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
+        insertBeforeTail(Queue->p_tail, board[i][j], i, j);
+    }
+}
 bool CheckConect(char **board, Board b, Pair *p, List *Queue){
     createQueue(Queue, p);
-    Vector v1, v2, v3;
+    
     //----------------------------------------------
     for(int r = p[0].row; r >= 0; r--){
         //Set 2 conner
-        Pair firstCorner = {r, p[0].col};
-        Pair secondCorner = {r, p[1].col};
-        //find Vector;
-        v1 = calVec(p[0], firstCorner);
-        v2 = calVec(firstCorner, secondCorner);
-        v3 = calVec(secondCorner, p[1]);
-        //Set Queue
-        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
+        Queue->firstCorner = {r, p[0].col};
+        Queue->secondCorner = {r, p[1].col};
+        SetQueue(board, p, Queue);
         if(CheckQueue(Queue))
         {
             return true;
@@ -119,88 +124,50 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         removeAll(Queue);
     }
     //------------------------------------------------
+    //----------------------------------------------
     for(int r = p[0].row; r < b.rows; r++){
         //Set 2 conner
-        Pair firstCorner = {r, p[0].col};
-        Pair secondCorner = {r, p[1].col};
-        //find Vector;
-        v1 = calVec(p[0], firstCorner);
-        v2 = calVec(firstCorner, secondCorner);
-        v3 = calVec(secondCorner, p[1]);
-        //Set Queue
-        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
+        Queue->firstCorner = {r, p[0].col};
+        Queue->secondCorner = {r, p[1].col};
+        SetQueue(board, p, Queue);
         if(CheckQueue(Queue))
         {
             return true;
         }
         removeAll(Queue);
     }
-
-    for(int c = p[0].col; c < b.columns; c++){
-        //Set 2 conner
-        Pair firstCorner = {p[0].row, c};
-        Pair secondCorner = {p[1].row, c};
-        //find Vector;
-        v1 = calVec(p[0], firstCorner);
-        v2 = calVec(firstCorner, secondCorner);
-        v3 = calVec(secondCorner, p[1]);
-        //Set Queue
-        for(int i = p[0].row + v1.r, j = p[0].col +v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        if(CheckQueue(Queue))
-        {
-            return true;
-        }
-        removeAll(Queue);
-    }
-
+    //------------------------------------------------
+    //----------------------------------------------
     for(int c = p[0].col; c >= 0; c--){
         //Set 2 conner
-        Pair firstCorner = {p[0].row, c};
-        Pair secondCorner = {p[1].row, c};
-        //find Vector;
-        v1 = calVec(p[0], firstCorner);
-        v2 = calVec(firstCorner, secondCorner);
-        v3 = calVec(secondCorner, p[1]);
-        //Set Queue
-        for(int i = p[0].row + v1.r, j = p[0].col + v1.c; i != firstCorner.row || j != firstCorner.col; i += v1.r, j += v1.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = firstCorner.row, j = firstCorner.col; i != secondCorner.row || j != secondCorner.col; i += v2.r, j += v2.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
-        for(int i = secondCorner.row, j = secondCorner.col; i != p[1].row || j != p[1].col; i += v3.r, j += v3.c){
-            insertBeforeTail(Queue->p_tail, board[i][j], i, j);
-        }
+        Queue->firstCorner = {p[0].row, c};
+        Queue->secondCorner = {p[1].row, c};
+        SetQueue(board, p, Queue);
         if(CheckQueue(Queue))
         {
             return true;
         }
         removeAll(Queue);
     }
-    
+    //------------------------------------------------
+    //----------------------------------------------
+    for(int c = p[0].col; c < b.columns; c++){
+        //Set 2 conner
+        Queue->firstCorner = {p[0].row, c};
+        Queue->secondCorner = {p[1].row, c};
+        SetQueue(board, p, Queue);
+        if(CheckQueue(Queue))
+        {
+            return true;
+        }
+        removeAll(Queue);
+    }
+    //------------------------------------------------
     return false;
 }
 
 //Check if there are any square left
 bool check(char **board, Board b){
-
-    
     for(int i = 0; i < b.rows; i++){
         for(int j = 0; j < b.columns; j++){
             if(board[i][j] != ' ')
@@ -284,7 +251,18 @@ void Recolor(string** grid, string color){
         }
     }
 }
+//Draw Path 
+void DrawPath(string ****table, List *Queue){
+    for(NODE* cursor = Queue->p_head; cursor != Queue->p_tail; cursor = cursor->p_next){
+        Setcolor(table[cursor->row][cursor->col], "\e[44m");
+    }
+}
 
+void DeletePath(string ****table, List *Queue){
+    for(NODE* cursor = Queue->p_head; cursor != Queue->p_tail; cursor = cursor->p_next){
+        Recolor(table[cursor->row][cursor->col], "\e[44m");
+    }
+}
 
 //CREATE BOARD ###################################################################################################################
 char** createBoard(Board b){
@@ -419,10 +397,10 @@ void Client(char **board, Board b){
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
                         List Queue;
                         if(CheckConect(board, b, p, &Queue)){
-                            for(NODE *cursor = Queue.p_head; cursor != nullptr; cursor = cursor->p_next){
-                                cout << "Key: " << cursor->key << "Row: " << cursor->row << " Col: " << cursor->col << endl;
-                            }
+                            DrawPath(table, &Queue);
+                            drawBoard(table, b, col, row);
                             system("pause");
+                            DeletePath(table, &Queue);
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] =  ' ';    
                             //earse grid
                             erase(table[p[0].row][p[0].col]);
