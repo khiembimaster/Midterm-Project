@@ -54,7 +54,6 @@ void Client(char **board, Board b){
     int count = 0;
 
     while(exist == false){ 
-        exist = check(board, b);
         drawBoard(table, b, col, row);
         cout << count;
         //move-----
@@ -127,6 +126,8 @@ void Client(char **board, Board b){
                             erase(table[p[0].row][p[0].col]);
                             erase(table[p[1].row][p[1].col]);
                             removeAll(&Queue);
+
+                            exist = check(board, b);
                         }
                         delete Queue.p_head;
                         delete Queue.p_tail;
@@ -136,7 +137,6 @@ void Client(char **board, Board b){
                     Recolor(table[p[1].row][p[1].col], "\e[45m");
                     count = 0;
                 }
-    
                 break;
             }
             
@@ -145,6 +145,7 @@ void Client(char **board, Board b){
         
         //--------
     }
+    
         
     for(int i = 0; i < b.rows; i++){
         for(int j = 0; j < b.columns; j++){
@@ -165,9 +166,20 @@ void Client(char **board, Board b){
 
 int main(){
     
-    Board b= {6,10};
-    
-    char ** board = createBoard(b);
+    Board b= {3,3};
+    char ** board;
+
+    do{
+        board = createBoard(b);
+        if (check(board, b))
+        {
+            for(int i = 0; i < b.rows; i++){
+                delete[] board[i];
+            }
+            delete[] board;
+        }
+        break;
+    }while(true);
 
     Client(board,b);
 

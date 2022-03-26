@@ -23,4 +23,5 @@ struct List{
     Pair firstCorner, secondCorner;
 };
 
+
 #endif // STRUCT
