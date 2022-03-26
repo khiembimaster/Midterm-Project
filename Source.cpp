@@ -52,10 +52,19 @@ void Client(char **board, Board b){
     int col = 0,row = 0;
     Pair p[2];
     int count = 0;
+    //-------
+    int counter = 0;
+    time_t curent, past;
+    curent = time(NULL);
 
     while(exist == false){ 
+        past = curent;
+        curent = time(NULL);
+        counter += curent - past;
+
         drawBoard(table, b, col, row);
-        cout << count;
+        cout << counter << endl;
+
         //move-----
         key_event = getch();
         switch(key_event){
@@ -145,7 +154,7 @@ void Client(char **board, Board b){
         
         //--------
     }
-    
+
         
     for(int i = 0; i < b.rows; i++){
         for(int j = 0; j < b.columns; j++){
@@ -166,7 +175,7 @@ void Client(char **board, Board b){
 
 int main(){
     
-    Board b= {3,3};
+    Board b= {6,8};
     char ** board;
 
     do{
