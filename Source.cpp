@@ -9,39 +9,30 @@ using namespace std;
 
 
 
+void Difficulty(char **board, Board b){
+    for(int i = 0; i < b.rows; i++){
+        for(int j = 0; j < b.columns; j++){
+            if(board[i][j] == ' '){
+                for(int k = j ; k < b.columns-1; k++){
+                    board[i][k] = board[i][k+1];
+                }
+                board[i][b.columns-1] = ' ';
+                break;
+            }
+        }
+    }
+}
+
 //IN GAME  ########################################################################################################################-
-void Client(char **board, Board b){
+void Client(char **board, Board b, bool difficult){
     system("cls");
 
+    
     
     //Drawable 2d array
         //create a screen
     string ****table = new string***[b.rows];
-    for(int r = 0; r < b.rows; r++){
-        table[r] = new string**[b.columns];
-        for(int c = 0; c < b.columns; c++){
-            table[r][c] = new string*[5];
-            for(int i = 0; i < 5; i++){
-                table[r][c][i] = new string[Width];
-            }
-            //draw Hline
-            for(int j = 1; j < Width-1; j++){
-                table[r][c][0][j] = table[r][c][4][j] = '-';
-            }
-            //draw row 1-3
-            for(int i = 1; i < 5-1; i++){
-                table[r][c][i][0] = table[r][c][i][Width-1] = "|";
-                for(int j = 1; j < Width-1; j++){
-                    table[r][c][i][j] = ' ';
-                }
-            }
-            //Set corner
-            table[r][c][0][0] = table[r][c][0][Width-1] = table[r][c][4][0] = table[r][c][4][Width-1] = ' ';
-            //Set value
-            table[r][c][5/2][Width/2] = board[r][c];
-
-        }
-    }
+    SetTable(table, board, b);
 
     //Pair *tracker = new Pair [b.rows*b.columns+1];
     
@@ -53,17 +44,19 @@ void Client(char **board, Board b){
     Pair p[2];
     int count = 0;
     //-------
-    int counter = 0;
+    int timer = 0;
     time_t curent, past;
     curent = time(NULL);
 
     while(exist == false){ 
+
+
         past = curent;
         curent = time(NULL);
-        counter += curent - past;
+        timer += curent - past;
 
-        drawBoard(table, b, col, row);
-        cout << counter << endl;
+        drawBoard(table, b, col, row, timer);
+        
 
         //move-----
         key_event = getch();
@@ -121,21 +114,25 @@ void Client(char **board, Board b){
                         continue;
                     }
                     //Upadate Screen
-                    drawBoard(table, b, col, row);
+                    drawBoard(table, b, col, row, timer);
                     system("sleep");
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
                         List Queue;
                         if(CheckConect(board, b, p, &Queue)){
                             DrawPath(table, &Queue);
-                            drawBoard(table, b, col, row);
+                            drawBoard(table, b, col, row, timer);
                             system("pause");
                             DeletePath(table, &Queue);
-                            board[p[0].row][p[0].col] = board[p[1].row][p[1].col] =  ' ';    
-                            //earse grid
-                            erase(table[p[0].row][p[0].col]);
-                            erase(table[p[1].row][p[1].col]);
-                            removeAll(&Queue);
+                            board[p[0].row][p[0].col] = ' ';
+                            if(difficult)
+                                Difficulty(board, b);
+                            board[p[1].row][p[1].col] =  ' ';  
+                            if(difficult)
+                                Difficulty(board, b);
+                            //reset Table
+                            SetTable(table, board, b);
 
+                            removeAll(&Queue);
                             exist = check(board, b);
                         }
                         delete Queue.p_head;
@@ -190,7 +187,7 @@ int main(){
         break;
     }while(true);
 
-    Client(board,b);
+    Client(board,b, true);
 
 
 

@@ -3,13 +3,22 @@
 #include <string>
 #include "Structure.h"
 #define Width 8
-#define CURSOR_COLOR 176
-#define SCREEN_COLOR 5
+#define CURSOR_COLOR 251
+#define SCREEN_COLOR 11
 using namespace std;
+
 //DRAW ########################################################################################################################---
 //iprint board
-void drawBoard(string ****table, Board b, int col, int row){
+void drawBoard(string ****table, Board b, int col, int row, int timer){
     system("cls");
+    //-----------------------------------------------------
+    int hour = timer/3600;
+    timer %= 3600;
+    int minute = timer/60;
+    int second = timer%60;
+    cout << hour << "h " << minute << "m " << second << "s " << endl ;
+
+    //-----------------------------------------------------
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     
     //Draw first row 
@@ -32,10 +41,38 @@ void drawBoard(string ****table, Board b, int col, int row){
     
 }
 //Erase grid
-void erase(string** grid){
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < Width; j++){
-            grid[i][j] = " ";
+void SetTable(string**** table, char**board,  Board b){
+for(int r = 0; r < b.rows; r++){
+        table[r] = new string**[b.columns];
+        for(int c = 0; c < b.columns; c++){
+            table[r][c] = new string*[5];
+            for(int i = 0; i < 5; i++){
+                table[r][c][i] = new string[Width];
+            }
+            //draw Hline
+            char chr = '-';
+            if(board[r][c] == ' ')
+                chr = ' ';
+                
+            for(int j = 1; j < Width-1; j++){
+                table[r][c][0][j] = table[r][c][4][j] = chr;
+            }
+            //draw row 1-3
+            chr = '|';
+            if(board[r][c] == ' ')
+                chr = ' ';
+                
+            for(int i = 1; i < 5-1; i++){
+                table[r][c][i][0] = table[r][c][i][Width-1] = chr;
+                for(int j = 1; j < Width-1; j++){
+                    table[r][c][i][j] = ' ';
+                }
+            }
+            //Set corner
+            table[r][c][0][0] = table[r][c][0][Width-1] = table[r][c][4][0] = table[r][c][4][Width-1] = ' ';
+            //Set value
+            table[r][c][5/2][Width/2] = board[r][c];
+
         }
     }
 }
