@@ -95,7 +95,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
 }
 
 //Check if there are any square left
-bool check(char **board, Board b){
+bool check(char **board, Board b, Pair *helper){
     bool checker = true;
     for(int i = 0; i < b.rows*b.columns; i++){
         
@@ -106,6 +106,8 @@ bool check(char **board, Board b){
             List Queue;
             Pair p[2] = {{i / (b.columns), i % (b.columns)},{j / (b.columns), j % (b.columns)}};
             if(CheckConect(board, b, p, &Queue)){
+                helper[0] = p[0];
+                helper[1] = p[1];
                 removeAll(&Queue);
                 checker = false;
             }

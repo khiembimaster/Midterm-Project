@@ -7,8 +7,6 @@
 //--------------------
 using namespace std;
 
-
-
 void Difficulty(char **board, Board b){
     int count = 2;
     for(int i = 0; i < b.rows; i++){
@@ -29,7 +27,7 @@ void Difficulty(char **board, Board b){
 }
 
 //IN GAME  ########################################################################################################################-
-void Client(char **board, Board b, bool difficult){
+void Client(char **board, Board b, bool difficult, Pair *helper){
     system("cls");
 
     
@@ -40,7 +38,7 @@ void Client(char **board, Board b, bool difficult){
     SetTable(table, board, b);
 
     //Pair *tracker = new Pair [b.rows*b.columns+1];
-    
+
 
     //----------------------
     bool exist = false;
@@ -53,8 +51,7 @@ void Client(char **board, Board b, bool difficult){
     time_t curent, past;
     curent = time(NULL);
 
-    while(exist == false){ 
-
+    while(exist == false){
 
         past = curent;
         curent = time(NULL);
@@ -66,6 +63,15 @@ void Client(char **board, Board b, bool difficult){
         //move-----
         key_event = getch();
         switch(key_event){
+            //13 Enter
+            case 13:{
+                Setcolor(table[helper[0].row][helper[0].col], "\e[45m");
+                Setcolor(table[helper[1].row][helper[1].col], "\e[45m");
+                drawBoard(table, b, col, row, timer);
+                system("pause");
+                Recolor(table[helper[0].row][helper[0].col], "\e[45m");
+                Recolor(table[helper[1].row][helper[1].col], "\e[45m");
+            }break;
             //27 for escape ESC
             case 27:{
                 exist = true;
@@ -136,7 +142,7 @@ void Client(char **board, Board b, bool difficult){
                             SetTable(table, board, b);
 
                             removeAll(&Queue);
-                            exist = check(board, b);
+                            exist = check(board, b, helper);
                         }
                         delete Queue.p_head;
                         delete Queue.p_tail;
@@ -166,10 +172,6 @@ void Client(char **board, Board b, bool difficult){
         delete[] table[i];
     }
     delete[] table;
-
-    
-    
-
 }
 
 
@@ -177,10 +179,11 @@ int main(){
     
     Board b= {6,8};
     char ** board;
-
+    //Helper
+    Pair helper[2] = {-1,-1};
     do{
         board = createBoard(b);
-        if (check(board, b))
+        if (check(board, b, helper))
         {
             for(int i = 0; i < b.rows; i++){
                 delete[] board[i];
@@ -190,7 +193,7 @@ int main(){
         break;
     }while(true);
 
-    Client(board,b, true);
+    Client(board,b, true, helper);
 
 
 
