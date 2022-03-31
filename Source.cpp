@@ -10,6 +10,7 @@ using namespace std;
 
 
 void Difficulty(char **board, Board b){
+    int count = 2;
     for(int i = 0; i < b.rows; i++){
         for(int j = 0; j < b.columns; j++){
             if(board[i][j] == ' '){
@@ -17,7 +18,11 @@ void Difficulty(char **board, Board b){
                     board[i][k] = board[i][k+1];
                 }
                 board[i][b.columns-1] = ' ';
-                break;
+                if(count > 0){
+                    j--;
+                    count--;
+                }
+                else break;
             }
         }
     }
@@ -123,12 +128,10 @@ void Client(char **board, Board b, bool difficult){
                             drawBoard(table, b, col, row, timer);
                             system("pause");
                             DeletePath(table, &Queue);
-                            board[p[0].row][p[0].col] = ' ';
+                            board[p[0].row][p[0].col] = board[p[1].row][p[1].col] = ' ';
                             if(difficult)
                                 Difficulty(board, b);
-                            board[p[1].row][p[1].col] =  ' ';  
-                            if(difficult)
-                                Difficulty(board, b);
+
                             //reset Table
                             SetTable(table, board, b);
 
