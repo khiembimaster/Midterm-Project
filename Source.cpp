@@ -7,30 +7,24 @@
 //--------------------
 using namespace std;
 
-void Difficulty(char **board, Board b){
-    int count = 2;
-    for(int i = 0; i < b.rows; i++){
-        for(int j = 0; j < b.columns; j++){
-            if(board[i][j] == ' '){
-                for(int k = j ; k < b.columns-1; k++){
-                    board[i][k] = board[i][k+1];
-                }
-                board[i][b.columns-1] = ' ';
-                if(count > 0){
-                    j--;
-                    count--;
-                }
-                else break;
-            }
+void Difficulty(char **board, Board b, Pair* p){
+    int count = 3;
+    for(int i = 0; i < 2; i++){
+        if(board[p[i].row][p[i].col] != ' ')
+            p[i].col--;
+        for(int j = p[i].col ; j < b.columns-1; j++){
+            board[p[i].row][j] = board[p[i].row][j+1];
         }
+        board[p[i].row][b.columns-1] = ' ';    
     }
 }
 
 //IN GAME  ########################################################################################################################-
 void Client(char **board, Board b, bool difficult, Pair *helper){
     system("cls");
-
     
+    string* background = new string[b.rows*5];
+    createBackGround(background, b, "Background2.txt");
     
     //Drawable 2d array
         //create a screen
@@ -57,8 +51,8 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
         curent = time(NULL);
         timer += curent - past;
 
-        drawBoard(table, b, col, row, timer);
-        
+        drawBoard(table, b, col, row, timer, background);
+
 
         //move-----
         key_event = getch();
@@ -67,7 +61,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
             case 13:{
                 Setcolor(table[helper[0].row][helper[0].col], "\e[45m");
                 Setcolor(table[helper[1].row][helper[1].col], "\e[45m");
-                drawBoard(table, b, col, row, timer);
+                drawBoard(table, b, col, row, timer, background);
                 system("pause");
                 Recolor(table[helper[0].row][helper[0].col], "\e[45m");
                 Recolor(table[helper[1].row][helper[1].col], "\e[45m");
@@ -125,18 +119,18 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
                         continue;
                     }
                     //Upadate Screen
-                    drawBoard(table, b, col, row, timer);
+                    drawBoard(table, b, col, row, timer, background);
                     system("sleep");
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
                         List Queue;
                         if(CheckConect(board, b, p, &Queue)){
                             DrawPath(table, &Queue);
-                            drawBoard(table, b, col, row, timer);
+                            drawBoard(table, b, col, row, timer, background);
                             system("pause");
                             DeletePath(table, &Queue);
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] = ' ';
                             if(difficult)
-                                Difficulty(board, b);
+                                Difficulty(board, b, p);
 
                             //reset Table
                             SetTable(table, board, b);
@@ -160,7 +154,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
         
         //--------
     }
-
+    delete[] background;
         
     for(int i = 0; i < b.rows; i++){
         for(int j = 0; j < b.columns; j++){
@@ -193,7 +187,7 @@ int main(){
         break;
     }while(true);
 
-    Client(board,b, true, helper);
+    Client(board,b, false, helper);
 
 
 

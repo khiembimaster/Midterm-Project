@@ -1,15 +1,29 @@
 #include <iostream>
+#include <fstream>
 #include <windows.h>
 #include <string>
+#include <cmath>
 #include "Structure.h"
 #define Width 8
 #define CURSOR_COLOR 251
 #define SCREEN_COLOR 11
 using namespace std;
 
+void createBackGround(string *&background, Board b, string b_name){
+    ifstream fs(b_name);
+    int i = 0;
+    while(i < b.rows*5){
+        if(fs)
+            getline(fs, background[i]);
+        background[i].resize(b.columns*Width, ' ');
+        i++;
+    }
+    fs.close();
+}
+
 //DRAW ########################################################################################################################---
 //iprint board
-void drawBoard(string ****table, Board b, int col, int row, int timer){
+void drawBoard(string ****table, Board b, int col, int row, int timer, string *background){
     system("cls");
     //-----------------------------------------------------
     int hour = timer/3600;
@@ -31,6 +45,9 @@ void drawBoard(string ****table, Board b, int col, int row, int timer){
                         if(i == 2 && j == Width/2)
                         SetConsoleTextAttribute(hStdout, CURSOR_COLOR);
                     }
+                    if(table[r][c][i][j] == " " )
+                        cout << "\e[1;90m" << background[(r*5 + i)][c*Width+j] << "\e[0m";
+                    else 
                     cout << table[r][c][i][j];
                     SetConsoleTextAttribute(hStdout, SCREEN_COLOR);
                 }
