@@ -40,7 +40,7 @@ void drawBoard(string ****table, Board b, int col, int row, int timer, string *b
             for(int c = 0; c < b.columns; c++){
                 for(int j = 0; j < Width; j++){
                     if(r == row && c == col){
-                        if(i == 2 && j == Width/2)
+                        if(!(i == 0 || i == 4 || j == 0 || j == Width-1))
                             output.append("\e[47m");
                     }
                     if(table[r][c][i][j] == " " ){
