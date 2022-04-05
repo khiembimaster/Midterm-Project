@@ -1,11 +1,9 @@
 #include <iostream>
 #include <fstream>
-#include <windows.h>
 #include <string>
 #include <cmath>
 #include "Structure.h"
 #define Width 10
-#define CURSOR_COLOR 251
 #define SCREEN_COLOR 9
 using namespace std;
 
@@ -23,7 +21,10 @@ void createBackGround(string *&background, Board b, string b_name){
 
 //DRAW ########################################################################################################################---
 //iprint board
+
 void drawBoard(string ****table, Board b, int col, int row, int timer, string *background){
+    string output;
+
     system("cls");
     //-----------------------------------------------------
     int hour = timer/3600;
@@ -33,29 +34,30 @@ void drawBoard(string ****table, Board b, int col, int row, int timer, string *b
     cout << hour << "h " << minute << "m " << second << "s " << endl ;
 
     //-----------------------------------------------------
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    
     //Draw first row 
-    string output;
     for(int r = 0; r < b.rows; r++){
         for(int i = 0; i < 5; i++){
             for(int c = 0; c < b.columns; c++){
                 for(int j = 0; j < Width; j++){
                     if(r == row && c == col){
                         if(i == 2 && j == Width/2)
-                        SetConsoleTextAttribute(hStdout, CURSOR_COLOR);
+                            output.append("\e[47m");
                     }
-                    if(table[r][c][i][j] == " " )
-                        cout << "\e[1;36m" << background[(r*5 + i)][c*Width+j] << "\e[0m";
-                    else 
-                    cout << table[r][c][i][j];
-                    SetConsoleTextAttribute(hStdout, SCREEN_COLOR);
+                    if(table[r][c][i][j] == " " ){
+                        output.append("\e[1;36m");
+                        output+=(background[(r*5 + i)][c*Width+j]);
+                        output.append("\e[0m");
+                    }else {
+                        output.append("\e[1;94m");
+                        output.append(table[r][c][i][j]);
+                        output.append("\e[0m");
+                    }
                 }
             }
-            cout << endl;
+            output.append("\n");
         }
     }
-    
+    cout << output;
 }
 //Erase grid
 void SetTable(string**** table, char**board,  Board b){

@@ -20,7 +20,7 @@ void Difficulty(char **board, Board b, Pair* p){
 }
 
 //IN GAME  ########################################################################################################################-
-void Client(char **board, Board b, bool difficult, Pair *helper){
+void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     system("cls");
     
     string* background = new string[b.rows*5];
@@ -41,7 +41,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
     Pair p[2];
     int count = 0;
     //-------
-    int timer = 0;
     time_t curent, past;
     curent = time(NULL);
 
@@ -142,8 +141,8 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
                         delete Queue.p_tail;
                     }
                     //Reset
-                    Recolor(table[p[0].row][p[0].col], "\e[45m");
-                    Recolor(table[p[1].row][p[1].col], "\e[45m");
+                    //Recolor(table[p[0].row][p[0].col], "\e[45m");
+                    //Recolor(table[p[1].row][p[1].col], "\e[45m");
                     SetTable(table, board, b);
                     count = 0;
                 }
@@ -173,6 +172,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
 void Game(){
     Board b;
     char ** board;
+    int timer;
     //Helper
     Pair helper[2] = {-1,-1};
     bool isDiff;
@@ -220,6 +220,7 @@ void Game(){
         default:
             break;
         }
+        
         if(exist)
             break;
         do{
@@ -233,7 +234,7 @@ void Game(){
             }
             break;
         }while(true);
-        Client(board,b, isDiff, helper);
+        Client(board,b, isDiff, helper, timer);
     }
     
 
