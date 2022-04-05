@@ -32,7 +32,7 @@ char** createBoard(Board b){
         swap(board[y1][x1], board[y2][x2]);
         swap(board[y1][x2], board[y2][x1]);
     }
-
+    
 
     return board; 
 }

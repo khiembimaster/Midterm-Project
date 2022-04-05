@@ -89,7 +89,7 @@ for(int r = 0; r < b.rows; r++){
             table[r][c][0][0] = table[r][c][0][Width-1] = table[r][c][4][0] = table[r][c][4][Width-1] = ' ';
             //Set value
             table[r][c][5/2][Width/2] = board[r][c];
-
+            if(board[r][c] != ' ')table[r][c][5/2][Width/2].insert(0,"\e[1;92m");
         }
     }
 }
@@ -106,7 +106,7 @@ void Recolor(string** grid, string color){
     for(int r = 1; r < 5-1; r++){
         for(int c = 1; c < Width-1; c++){
             if(grid[r][c].size() >= color.size())
-                grid[r][c].erase(0,color.size());
+                grid[r][c].erase(grid[r][c].find(color),color.size());
         }
     }
 }

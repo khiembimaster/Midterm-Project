@@ -129,11 +129,11 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
                             system("pause");
                             DeletePath(table, &Queue);
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] = ' ';
+                            
                             if(difficult)
                                 Difficulty(board, b, p);
 
                             //reset Table
-                            SetTable(table, board, b);
 
                             removeAll(&Queue);
                             exist = check(board, b, helper);
@@ -144,6 +144,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
                     //Reset
                     Recolor(table[p[0].row][p[0].col], "\e[45m");
                     Recolor(table[p[1].row][p[1].col], "\e[45m");
+                    SetTable(table, board, b);
                     count = 0;
                 }
                 break;
@@ -169,31 +170,81 @@ void Client(char **board, Board b, bool difficult, Pair *helper){
 }
 
 
-int main(){
-    
-    Board b= {6,8};
+void Game(){
+    Board b;
     char ** board;
     //Helper
     Pair helper[2] = {-1,-1};
-    do{
-        board = createBoard(b);
-        if (check(board, b, helper))
+    bool isDiff;
+
+    //-----------------------
+    bool exist = false;
+    char choice;
+
+    while(true){
+        system("cls");
+
+        cout 
+        << "1. Normal(6x8)" << endl
+        << "2. Difficult(6x8) " << endl
+        << "3. Custom " << endl
+        << "4. Back to main" << endl;
+
+        choice = getch();
+        cout << (char)7;
+        switch (choice)
         {
-            for(int i = 0; i < b.rows; i++){
-                delete[] board[i];
-            }
-            delete[] board;
+        case '1':{
+            b.rows = 6;
+            b.columns = 8;
+            isDiff = false;
+        }break;
+        case '2':{
+            b.rows = 6;
+            b.columns = 8;
+            isDiff = true;
+        }break;
+        case '3':{
+            cout << "Enter BOARD size (Width / Height): " ;
+            cin >> b.columns >> b.rows;
+
+            cout << "Enter 0 to turn off time restriction mode: ";
+            cin >> isDiff;
+
+            
+        }break;
+        case '4':{
+            exist = true;
+        }break;
+        
+        default:
+            break;
         }
-        break;
-    }while(true);
-
-    Client(board,b, false, helper);
-
-
+        if(exist)
+            break;
+        do{
+            board = createBoard(b);
+            if (check(board, b, helper))
+            {
+                for(int i = 0; i < b.rows; i++){
+                    delete[] board[i];
+                }
+                delete[] board;
+            }
+            break;
+        }while(true);
+        Client(board,b, isDiff, helper);
+    }
+    
 
 // delete board
     for(int i = 0; i < b.rows; i++){
         delete[] board[i];
     }
     delete[] board;
+}
+
+int main(){
+    Game();
+
 }
