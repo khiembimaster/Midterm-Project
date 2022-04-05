@@ -4,9 +4,9 @@
 #include <string>
 #include <cmath>
 #include "Structure.h"
-#define Width 8
+#define Width 10
 #define CURSOR_COLOR 251
-#define SCREEN_COLOR 11
+#define SCREEN_COLOR 9
 using namespace std;
 
 void createBackGround(string *&background, Board b, string b_name){
@@ -46,7 +46,7 @@ void drawBoard(string ****table, Board b, int col, int row, int timer, string *b
                         SetConsoleTextAttribute(hStdout, CURSOR_COLOR);
                     }
                     if(table[r][c][i][j] == " " )
-                        cout << "\e[1;90m" << background[(r*5 + i)][c*Width+j] << "\e[0m";
+                        cout << "\e[1;36m" << background[(r*5 + i)][c*Width+j] << "\e[0m";
                     else 
                     cout << table[r][c][i][j];
                     SetConsoleTextAttribute(hStdout, SCREEN_COLOR);
@@ -89,7 +89,7 @@ for(int r = 0; r < b.rows; r++){
             table[r][c][0][0] = table[r][c][0][Width-1] = table[r][c][4][0] = table[r][c][4][Width-1] = ' ';
             //Set value
             table[r][c][5/2][Width/2] = board[r][c];
-            if(board[r][c] != ' ')table[r][c][5/2][Width/2].insert(0,"\e[1;92m");
+            if(board[r][c] != ' ')table[r][c][5/2][Width/2].insert(0,"\e[4;31m");
         }
     }
 }
