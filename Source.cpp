@@ -25,6 +25,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     timer = 0;
     string* background = new string[b.rows*5];
     string bg_name = "BGs\\BG.txt";
+    srand(time(NULL));
     char chr = '0' + rand()%3;
     bg_name.insert(bg_name.begin()+6, chr);
     createBackGround(background, b, bg_name);
