@@ -11,7 +11,7 @@ void Difficulty(char **board, Board b, Pair* p){
     int count = 3;
     for(int i = 0; i < 2; i++){
         if(board[p[i].row][p[i].col] != ' ')
-            p[i].col--;
+            p[i].col--; 
         for(int j = p[i].col ; j < b.columns-1; j++){
             board[p[i].row][j] = board[p[i].row][j+1];
         }
@@ -22,9 +22,12 @@ void Difficulty(char **board, Board b, Pair* p){
 //IN GAME  ########################################################################################################################-
 void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     system("cls");
-    
+    timer = 0;
     string* background = new string[b.rows*5];
-    createBackGround(background, b, "Background2.txt");
+    string bg_name = "BGs\\BG.txt";
+    char chr = '0' + rand()%3;
+    bg_name.insert(bg_name.begin()+6, chr);
+    createBackGround(background, b, bg_name);
     
     //Drawable 2d array
         //create a screen

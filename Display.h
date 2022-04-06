@@ -9,6 +9,10 @@ using namespace std;
 
 void createBackGround(string *&background, Board b, string b_name){
     ifstream fs(b_name);
+    if(!fs){
+        fs.close();
+        fs.open("BGs\\BG0.txt");
+    }
     int i = 0;
     while(i < b.rows*5){
         if(fs)
