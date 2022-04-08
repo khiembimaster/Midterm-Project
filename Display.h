@@ -1,11 +1,21 @@
 #include <iostream>
 #include <fstream>
+#include <windows.h>
 #include <string>
 #include <cmath>
 #include "Structure.h"
 #define Width 10
 #define SCREEN_COLOR 9
 using namespace std;
+void GoTo(SHORT posX, SHORT posY)
+{
+	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD Position;
+    Position.X = posX;
+    Position.Y = posY;
+
+	SetConsoleCursorPosition(hStdout, Position);
+}
 
 void createBackGround(string *&background, Board b, string b_name){
     ifstream fs(b_name);
@@ -14,9 +24,18 @@ void createBackGround(string *&background, Board b, string b_name){
         fs.open("BGs\\BG0.txt");
     }
     int i = 0;
+    while(i < b.rows*5/4){
+        background[i].resize(b.columns*Width, ' ');
+        i++;
+    }
     while(i < b.rows*5){
+        string temp = " ";
+        temp.resize(b.columns*Width/4, ' ');
+        background[i].append(temp);
+
         if(fs)
-            getline(fs, background[i]);
+            getline(fs, temp);
+        background[i].append(temp);
         background[i].resize(b.columns*Width, ' ');
         i++;
     }
@@ -31,23 +50,16 @@ void drawBoard(string ****table, Board b, int col, int row, int timer, string *b
 
     system("cls");
     //-----------------------------------------------------
-    int hour = timer/3600;
-    timer %= 3600;
-    int minute = timer/60;
-    int second = timer%60;
-    cout << hour << "h " << minute << "m " << second << "s " << endl ;
-
-    //-----------------------------------------------------
     //Draw first row 
     for(int r = 0; r < b.rows; r++){
         for(int i = 0; i < 5; i++){
             for(int c = 0; c < b.columns; c++){
-                for(int j = 0; j < Width; j++){
+                for(int j = 0; j < Width; j++){ 
                     if(r == row && c == col){
                         if(!(i == 0 || i == 4 || j == 0 || j == Width-1))
                             output.append("\e[47m");
                     }
-                    if(table[r][c][i][j] == " " ){
+                    if(table[r][c][5/2][Width/2] == " " ){
                         output.append("\e[1;36m");
                         output+=(background[(r*5 + i)][c*Width+j]);
                         output.append("\e[0m");
@@ -61,7 +73,15 @@ void drawBoard(string ****table, Board b, int col, int row, int timer, string *b
             output.append("\n");
         }
     }
-    cout << output;
+    cout << output << endl;
+        //-----------------------------------------------------
+    int hour = timer/3600;
+    timer %= 3600;
+    int minute = timer/60;
+    int second = timer%60;
+    
+    GoTo(b.columns*Width, b.rows*5/2);
+    cout << hour << "h " << minute << "m " << second <<"s";
 }
 //Erase grid
 void SetTable(string**** table, char**board,  Board b){

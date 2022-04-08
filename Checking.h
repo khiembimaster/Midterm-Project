@@ -94,13 +94,16 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
     return false;
 }
 
-//Check if there are any square left
-bool check(char **board, Board b, Pair *helper){
-    bool checker = true;
+//Check if the game got stuck
+int check(char **board, Board b, Pair *helper){
+    int checker = 1;
+    int count = 0;
     for(int i = 0; i < b.rows*b.columns; i++){
         
-        if(board[i / (b.columns)][i % (b.columns)] == ' ') continue;
-
+        if(board[i / (b.columns)][i % (b.columns)] == ' ') {
+            count++;
+            continue;
+        }
         for(int j = i + 1; j < b.rows*b.columns; j++){
             if(board[i / (b.columns)][i % b.columns] != board[j / b.columns][j % (b.columns)]) continue;
             List Queue;
@@ -109,11 +112,13 @@ bool check(char **board, Board b, Pair *helper){
                 helper[0] = p[0];
                 helper[1] = p[1];
                 removeAll(&Queue);
-                checker = false;
+                checker = 0;
             }
             delete Queue.p_head;
             delete Queue.p_tail;
         }
     }
+    if(count == b.rows*b.columns)
+        checker = 2;
     return checker;
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <conio.h>
+#include <windows.h>
 // My header file
 #include "Checking.h"
 #include "Display.h"
@@ -7,7 +8,7 @@
 //--------------------
 using namespace std;
 
-void Difficulty(char **board, Board b, Pair* p){
+void Difficulty(char **board, Board b, Pair* p, Pair* helper){
     int count = 3;
     for(int i = 0; i < 2; i++){
         if(board[p[i].row][p[i].col] != ' ')
@@ -17,13 +18,91 @@ void Difficulty(char **board, Board b, Pair* p){
         }
         board[p[i].row][b.columns-1] = ' ';    
     }
+
+    while(check(board, b, helper) == 1){
+            shuffle(board, b);
+    }
+}
+
+void MoveH(char**board, Board b, int &row, int &col, int dr){
+    //move
+    int step = dr;
+
+    // find the next available pokemon
+    while(0 < col+step && col+step < b.columns-1){
+        if(board[row][col + step] == ' ') step += dr;
+        else 
+        {   
+            col+=step;
+            return;
+        }
+    }
+    step-=dr;
+    int up = -1, down = 1;
+    while(0 < row + up || row + down < b.rows-1){
+        if(0 < row + up){
+            if(board[row + up][col + step] == ' ') up--;
+            else 
+            {   
+                row += up;
+                col += step;
+                return;
+            }
+        }
+        if(row + down < b.rows-1){
+            if(board[row + down][col + step] == ' ') down++;
+            else 
+            {   
+                row+=down;
+                col+=step;
+                return;
+            }
+        }
+    }
+}
+
+void MoveV(char**board, Board b, int &row, int &col, int dr){
+    //move
+    int step = dr;
+    // find the next available pokemon
+    while(0 < row+step && row+step < b.rows-1){
+        if(board[row + step][col] == ' ') step += dr;
+        else 
+        {   
+            row+=step;
+            return;
+        }
+    }
+    step -= dr;
+    int left = -1, right = 1;
+    while(0 < col + left || col+right < b.columns-1){
+        if(0 < col + left){
+            if(board[row + step][col + left] == ' ') left--;
+            else 
+            {   
+                col += left;
+                row += step;
+                return;
+            }
+        }
+        if(col+right < b.columns-1){
+            if(board[row + step][col + right] == ' ') right++;
+            else 
+            {   
+                col += right;
+                row +=step;
+                return;
+            }
+        }
+        
+    }
 }
 
 //IN GAME  ########################################################################################################################-
 void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     system("cls");
     timer = 0;
-    string* background = new string[b.rows*5];
+    string* background = new string[b.rows*5*2];
     string bg_name = "BGs\\BG.txt";
     srand(time(NULL));
     char chr = '0' + rand()%3;
@@ -41,7 +120,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     //----------------------
     bool exist = false;
     int key_event;
-    int col = 0,row = 0;
+    int col = 1,row = 1;
     Pair p[2];
     int count = 0;
     //-------
@@ -50,6 +129,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
 
     while(exist == false){
 
+        //time
         past = curent;
         curent = time(NULL);
         timer += curent - past;
@@ -78,29 +158,29 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
             case 'D':
             case 77:
             case 'd':{
-                if(col < b.columns - 1) col++;
+                MoveH(board, b, row, col, 1);
                 break;
             }
             //Move left
             case 'A':
             case 75:
             case 'a':{
-                if(col > 0) col--;
+                MoveH(board, b, row, col, -1);
                 break;
             }
             //Move Up
             case 'W':
             case 72:
             case 'w':{
-                if(row > 0) row--;
+                MoveV(board, b, row, col, -1); 
                 break;
             }
             //Move down
             case 'S':
             case 80:
             case 's':{
-                if(row < b.rows - 1) row++;
-                break;
+                MoveV(board, b, row, col, 1); 
+                break;    
             }
             //Confirm - Space
             case 32:{  
@@ -108,6 +188,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                 p[count].row = row;
                 p[count].col = col;
                 count++; 
+                //Sound
                 cout << (char)7;
                 //Marking 
                 Setcolor(table[row][col], "\e[45m");
@@ -129,13 +210,12 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                         if(CheckConect(board, b, p, &Queue)){
                             DrawPath(table, &Queue);
                             drawBoard(table, b, col, row, timer, background);
-                            system("pause");
                             DeletePath(table, &Queue);
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] = ' ';
                             
                             if(difficult)
-                                Difficulty(board, b, p);
-
+                                Difficulty(board, b, p, helper);
+                            
                             //reset Table
 
                             removeAll(&Queue);
@@ -144,9 +224,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                         delete Queue.p_head;
                         delete Queue.p_tail;
                     }
-                    //Reset
-                    //Recolor(table[p[0].row][p[0].col], "\e[45m");
-                    //Recolor(table[p[1].row][p[1].col], "\e[45m");
                     SetTable(table, board, b);
                     count = 0;
                 }
@@ -189,8 +266,8 @@ void Game(){
         system("cls");
 
         cout 
-        << "1. Normal(6x8)" << endl
-        << "2. Difficult(6x8) " << endl
+        << "1. Normal(6x12)" << endl
+        << "2. Difficult(6x12) " << endl
         << "3. Custom " << endl
         << "4. Back to main" << endl;
 
@@ -200,22 +277,20 @@ void Game(){
         {
         case '1':{
             b.rows = 6;
-            b.columns = 8;
+            b.columns = 12;
             isDiff = false;
         }break;
         case '2':{
             b.rows = 6;
-            b.columns = 8;
+            b.columns = 12;
             isDiff = true;
         }break;
         case '3':{
-            cout << "Enter BOARD size (Width / Height): " ;
+            cout << "Enter BOARD size (Height / Width): " ;
             cin >> b.columns >> b.rows;
 
-            cout << "Enter 0 to turn off time restriction mode: ";
+            cout << "Enter 0 to of Difficult mode: ";
             cin >> isDiff;
-
-            
         }break;
         case '4':{
             exist = true;
@@ -250,6 +325,7 @@ void Game(){
 }
 
 int main(){
+    ::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
     Game();
 
 }
