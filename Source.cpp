@@ -37,9 +37,11 @@ void MoveH(char**board, Board b, int &row, int &col, int dr){
             return;
         }
     }
-    step-=dr;
-    int up = -1, down = 1;
-    while(0 < row + up || row + down < b.rows-1){
+    step = dr;
+    
+    while(0 < col+step && col+step < b.columns-1){
+        int up = 0, down = 0;
+        while(0 < row + up || row + down < b.rows-1){
         if(0 < row + up){
             if(board[row + up][col + step] == ' ') up--;
             else 
@@ -53,11 +55,13 @@ void MoveH(char**board, Board b, int &row, int &col, int dr){
             if(board[row + down][col + step] == ' ') down++;
             else 
             {   
-                row+=down;
-                col+=step;
+                row +=down;
+                col +=step;
                 return;
             }
         }
+        }
+        step += dr;
     }
 }
 
@@ -73,9 +77,11 @@ void MoveV(char**board, Board b, int &row, int &col, int dr){
             return;
         }
     }
-    step -= dr;
-    int left = -1, right = 1;
-    while(0 < col + left || col+right < b.columns-1){
+    step = dr;
+    
+    while(0 < row+step && row+step < b.rows-1){
+        int left = 0, right = 0;
+        while(0 < col + left || col+right < b.columns-1){
         if(0 < col + left){
             if(board[row + step][col + left] == ' ') left--;
             else 
@@ -95,7 +101,10 @@ void MoveV(char**board, Board b, int &row, int &col, int dr){
             }
         }
         
+        }
+        step += dr;
     }
+    
 }
 
 //IN GAME  ########################################################################################################################-
