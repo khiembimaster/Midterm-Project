@@ -28,17 +28,6 @@ void MoveH(char**board, Board b, int &row, int &col, int dr){
     //move
     int step = dr;
 
-    // find the next available pokemon
-    while(0 < col+step && col+step < b.columns-1){
-        if(board[row][col + step] == ' ') step += dr;
-        else 
-        {   
-            col+=step;
-            return;
-        }
-    }
-    step = dr;
-    
     while(0 < col+step && col+step < b.columns-1){
         int up = 0, down = 0;
         while(0 < row + up || row + down < b.rows-1){
@@ -68,16 +57,6 @@ void MoveH(char**board, Board b, int &row, int &col, int dr){
 void MoveV(char**board, Board b, int &row, int &col, int dr){
     //move
     int step = dr;
-    // find the next available pokemon
-    while(0 < row+step && row+step < b.rows-1){
-        if(board[row + step][col] == ' ') step += dr;
-        else 
-        {   
-            row+=step;
-            return;
-        }
-    }
-    step = dr;
     
     while(0 < row+step && row+step < b.rows-1){
         int left = 0, right = 0;
@@ -278,25 +257,26 @@ void Game(){
         << "1. Normal(6x12)" << endl
         << "2. Difficult(6x12) " << endl
         << "3. Custom " << endl
-        << "4. Back to main" << endl;
+        << "4. Back to main" << endl
+        << "5. Continue" << endl;
 
         choice = getch();
         cout << (char)7;
         switch (choice)
         {
         case '1':{
-            b.rows = 6;
-            b.columns = 12;
+            b.rows = 2;
+            b.columns = 4;
             isDiff = false;
         }break;
         case '2':{
-            b.rows = 6;
-            b.columns = 12;
+            b.rows = 2;
+            b.columns = 4;
             isDiff = true;
         }break;
         case '3':{
             cout << "Enter BOARD size (Height / Width): " ;
-            cin >> b.columns >> b.rows;
+            cin >> b.rows >> b.columns;
 
             cout << "Enter 0 to of Difficult mode: ";
             cin >> isDiff;
@@ -304,11 +284,16 @@ void Game(){
         case '4':{
             exist = true;
         }break;
+        case '5':{
+            break;
+        }break;
         
         default:
-            break;
+            continue;
         }
         
+        if(b.rows >= 8)
+            exist = true;
         if(exist)
             break;
         do{
