@@ -19,71 +19,62 @@ void Difficulty(char **board, Board b, Pair* p, Pair* helper){
         board[p[i].row][b.columns-1] = ' ';    
     }
 
-    while(check(board, b, helper) == 1){
-            shuffle(board, b);
-    }
 }
 
 void MoveH(char**board, Board b, int &row, int &col, int dr){
     //move
-    int step = dr;
-
-    while(0 < col+step && col+step < b.columns-1){
-        int up = 0, down = 0;
-        while(0 < row + up || row + down < b.rows-1){
-        if(0 < row + up){
-            if(board[row + up][col + step] == ' ') up--;
-            else 
-            {   
-                row += up;
-                col += step;
-                return;
+    int wide = 0;
+    while(0 < row - wide || row + wide < b.rows-1){
+        int step = dr;
+        while(0 < col+step && col+step < b.columns-1){
+            if(0 < row - wide){
+                if(board[row - wide][col + step] != ' ') 
+                {   
+                    row -= wide;
+                    col += step;
+                    return;
+                }
             }
-        }
-        if(row + down < b.rows-1){
-            if(board[row + down][col + step] == ' ') down++;
-            else 
-            {   
-                row +=down;
-                col +=step;
-                return;
+            if(row + wide < b.rows-1){
+                if(board[row + wide][col + step] != ' ') 
+                {   
+                    row += wide;
+                    col += step;
+                    return;
+                }
             }
+            step += dr;
         }
-        }
-        step += dr;
+        wide++;
     }
 }
 
 void MoveV(char**board, Board b, int &row, int &col, int dr){
     //move
-    int step = dr;
-    
-    while(0 < row+step && row+step < b.rows-1){
-        int left = 0, right = 0;
-        while(0 < col + left || col+right < b.columns-1){
-        if(0 < col + left){
-            if(board[row + step][col + left] == ' ') left--;
-            else 
-            {   
-                col += left;
-                row += step;
-                return;
+    int wide = 0;
+    while(0 < col - wide || col + wide < b.columns-1){
+        int step = dr;
+        while(0 < row+step && row+step < b.rows-1){
+            if(0 < col - wide){
+                if(board[row + step][col - wide] != ' ') 
+                {   
+                    col -= wide;
+                    row += step;
+                    return;
+                }
             }
-        }
-        if(col+right < b.columns-1){
-            if(board[row + step][col + right] == ' ') right++;
-            else 
-            {   
-                col += right;
-                row +=step;
-                return;
+            if(col + wide < b.columns-1){
+                if(board[row + step][col + wide] != ' ') 
+                {   
+                    col += wide;
+                    row += step;
+                    return;
+                }
             }
+            step += dr;
         }
-        
-        }
-        step += dr;
+        wide++;
     }
-    
 }
 
 //IN GAME  ########################################################################################################################-
@@ -212,6 +203,10 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                         delete Queue.p_head;
                         delete Queue.p_tail;
                     }
+                    //Reset table
+                    while(check(board, b, helper) == 1){
+                        shuffle(board, b);
+                    }
                     SetTable(table, board, b);
                     count = 0;
                 }
@@ -224,7 +219,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
         //--------
     }
     delete[] background;
-        
     for(int i = 0; i < b.rows; i++){
         for(int j = 0; j < b.columns; j++){
             for(int r = 0; r < 5; r++){
@@ -236,7 +230,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     }
     delete[] table;
 }
-
 
 void Game(){
     Board b;
@@ -252,7 +245,6 @@ void Game(){
 
     while(true){
         system("cls");
-
         cout 
         << "1. Normal(6x12)" << endl
         << "2. Difficult(6x12) " << endl
@@ -277,7 +269,6 @@ void Game(){
         case '3':{
             cout << "Enter BOARD size (Height / Width): " ;
             cin >> b.rows >> b.columns;
-
             cout << "Enter 0 to of Difficult mode: ";
             cin >> isDiff;
         }break;
@@ -291,7 +282,6 @@ void Game(){
         default:
             continue;
         }
-        
         if(b.rows >= 8)
             exist = true;
         if(exist)
@@ -308,14 +298,15 @@ void Game(){
             break;
         }while(true);
         Client(board,b, isDiff, helper, timer);
+        
+        // delete board
+        for(int i = 0; i < b.rows; i++){
+            delete[] board[i];
+        }
+        delete[] board;
     }
     
 
-// delete board
-    for(int i = 0; i < b.rows; i++){
-        delete[] board[i];
-    }
-    delete[] board;
 }
 
 int main(){
