@@ -97,7 +97,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
 
 
     //----------------------
-    bool exist = false;
+    bool exist = true;
     int key_event;
     int col = 1,row = 1;
     Pair p[2];
@@ -106,7 +106,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     time_t curent, past;
     curent = time(NULL);
 
-    while(exist == false){
+    while(exist){
 
         //time
         past = curent;
@@ -130,7 +130,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
             }break;
             //27 for escape ESC
             case 27:{
-                exist = true;
+                exist = false;
                 break; 
             }
             //Move right
@@ -171,8 +171,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                 cout << (char)7;
                 //Marking 
                 Setcolor(table[row][col], "\e[45m");
-                
-                
                 //Control flow
                 if(count == 2){
                     if((p[0].row == p[1].row) && (p[0].col == p[1].col)){
@@ -186,27 +184,34 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                     system("sleep");
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
                         List Queue;
+                        // Checking
                         if(CheckConect(board, b, p, &Queue)){
+                            //Redraw board
                             DrawPath(table, &Queue);
                             drawBoard(table, b, col, row, timer, background);
                             DeletePath(table, &Queue);
+                            //Delete pokemon
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] = ' ';
                             
                             if(difficult)
                                 Difficulty(board, b, p, helper);
                             
-                            //reset Table
-
+                            //Check if there are any legal move left
+                            int flag = check(board, b, helper);
+                            if(flag == 2) exist = false;
+                            else {
+                                while(flag == 1){
+                                    shuffle(board, b);
+                                    flag = check(board, b, helper);
+                                }
+                            }
+                            //reset Queue
                             removeAll(&Queue);
-                            exist = check(board, b, helper);
                         }
                         delete Queue.p_head;
                         delete Queue.p_tail;
                     }
                     //Reset table
-                    while(check(board, b, helper) == 1){
-                        shuffle(board, b);
-                    }
                     SetTable(table, board, b);
                     count = 0;
                 }
@@ -272,6 +277,7 @@ void Game(){
             cout << "Enter 0 to of Difficult mode: ";
             cin >> isDiff;
         }break;
+        case 27:
         case '4':{
             exist = true;
         }break;
@@ -282,8 +288,11 @@ void Game(){
         default:
             continue;
         }
-        if(b.rows >= 8)
-            exist = true;
+        if(b.rows >= 8){
+            b.rows -= 2;
+            b.columns -= 2;
+        }
+            
         if(exist)
             break;
         do{
@@ -295,7 +304,7 @@ void Game(){
                 }
                 delete[] board;
             }
-            break;
+            else break;
         }while(true);
         Client(board,b, isDiff, helper, timer);
         

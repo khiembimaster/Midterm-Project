@@ -37,17 +37,13 @@ void SetQueue(char **board, Pair *p, List *Queue){
 }
 bool CheckConect(char **board, Board b, Pair *p, List *Queue){
     createQueue(Queue, p);
-    
     //----------------------------------------------
     for(int r = p[0].row; r >= 0; r--){
         //Set 2 conner
         Queue->firstCorner = {r, p[0].col};
         Queue->secondCorner = {r, p[1].col};
         SetQueue(board, p, Queue);
-        if(CheckQueue(Queue))
-        {
-            return true;
-        }
+        if(CheckQueue(Queue)) return true;
         removeAll(Queue);
     }
     //------------------------------------------------
@@ -57,10 +53,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         Queue->firstCorner = {r, p[0].col};
         Queue->secondCorner = {r, p[1].col};
         SetQueue(board, p, Queue);
-        if(CheckQueue(Queue))
-        {
-            return true;
-        }
+        if(CheckQueue(Queue)) return true;
         removeAll(Queue);
     }
     //------------------------------------------------
@@ -70,10 +63,7 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         Queue->firstCorner = {p[0].row, c};
         Queue->secondCorner = {p[1].row, c};
         SetQueue(board, p, Queue);
-        if(CheckQueue(Queue))
-        {
-            return true;
-        }
+        if(CheckQueue(Queue)) return true;
         removeAll(Queue);
     }
     //------------------------------------------------
@@ -82,12 +72,8 @@ bool CheckConect(char **board, Board b, Pair *p, List *Queue){
         //Set 2 conner
         Queue->firstCorner = {p[0].row, c};
         Queue->secondCorner = {p[1].row, c};
-
         SetQueue(board, p, Queue);
-
-        if(CheckQueue(Queue))
-            return true;
-
+        if(CheckQueue(Queue)) return true;
         removeAll(Queue);
     }
     //------------------------------------------------
