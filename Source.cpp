@@ -80,7 +80,6 @@ void MoveV(char**board, Board b, int &row, int &col, int dr){
 //IN GAME  ########################################################################################################################-
 void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     system("cls");
-    timer = 0;
     string* background = new string[b.rows*5*2];
     string bg_name = "BGs\\BG.txt";
     srand(time(NULL));
@@ -181,7 +180,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                     }
                     //Upadate Screen
                     drawBoard(table, b, col, row, timer, background);
-                    system("sleep");
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
                         List Queue;
                         // Checking
@@ -214,6 +212,8 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                     //Reset table
                     SetTable(table, board, b);
                     count = 0;
+
+                    system("pause");
                 }
                 break;
             }
@@ -237,7 +237,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
 }
 
 void Game(){
-    Board b;
+    Board b{2, 4};
     char ** board;
     int timer;
     //Helper
@@ -245,18 +245,18 @@ void Game(){
     bool isDiff;
 
     //-----------------------
-    bool exist = false;
+    bool exit = false;
     char choice;
 
     while(true){
+        //informing
         system("cls");
         cout 
         << "1. Normal(6x12)" << endl
         << "2. Difficult(6x12) " << endl
         << "3. Custom " << endl
-        << "4. Back to main" << endl
-        << "5. Continue" << endl;
-
+        << "4. Back to main" << endl;
+        //Get key event
         choice = getch();
         cout << (char)7;
         switch (choice)
@@ -265,61 +265,52 @@ void Game(){
             b.rows = 2;
             b.columns = 4;
             isDiff = false;
-        }break;
+            }break;
         case '2':{
             b.rows = 2;
             b.columns = 4;
             isDiff = true;
-        }break;
+            }break;
         case '3':{
             cout << "Enter BOARD size (Height / Width): " ;
             cin >> b.rows >> b.columns;
             cout << "Enter 0 to of Difficult mode: ";
             cin >> isDiff;
-        }break;
+            }break;
         case 27:
         case '4':{
-            exist = true;
-        }break;
-        case '5':{
-            break;
-        }break;
+            exit = true;
+            }break;
+        }
         
-        default:
-            continue;
-        }
-        if(b.rows >= 8){
-            b.rows -= 2;
-            b.columns -= 2;
-        }
-            
-        if(exist)
-            break;
-        do{
-            board = createBoard(b);
-            if (check(board, b, helper))
-            {
-                for(int i = 0; i < b.rows; i++){
-                    delete[] board[i];
+        if(exit) break;
+
+
+        //ROUND Loop
+        timer = 0;
+        while(b.rows < 8){
+            do{
+                board = createBoard(b);
+                if (check(board, b, helper))
+                {
+                    for(int i = 0; i < b.rows; i++){
+                        delete[] board[i];
+                    }
+                    delete[] board;
                 }
-                delete[] board;
-            }
-            else break;
-        }while(true);
-        Client(board,b, isDiff, helper, timer);
-        
+                else break;
+            }while(true);
+            Client(board,b, isDiff, helper, timer);
+        }
         // delete board
         for(int i = 0; i < b.rows; i++){
             delete[] board[i];
         }
         delete[] board;
     }
-    
-
 }
 
 int main(){
     ::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
     Game();
-
 }
