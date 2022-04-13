@@ -187,6 +187,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                             //Redraw board
                             DrawPath(table, &Queue);
                             drawBoard(table, b, col, row, timer, background);
+                            system("pause");
                             DeletePath(table, &Queue);
                             //Delete pokemon
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] = ' ';
@@ -212,8 +213,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                     //Reset table
                     SetTable(table, board, b);
                     count = 0;
-
-                    system("pause");
                 }
                 break;
             }
@@ -301,12 +300,13 @@ void Game(){
                 else break;
             }while(true);
             Client(board,b, isDiff, helper, timer);
+                    // delete board
+            for(int i = 0; i < b.rows; i++){
+                delete[] board[i];
+            }
+            delete[] board;
         }
-        // delete board
-        for(int i = 0; i < b.rows; i++){
-            delete[] board[i];
-        }
-        delete[] board;
+
     }
 }
 
