@@ -114,7 +114,6 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
 
         drawBoard(table, b, col, row, timer, background);
 
-
         //move-----
         key_event = getch();
         switch(key_event){
@@ -304,7 +303,7 @@ void Game(){
             for(int i = 0; i < b.rows; i++){
                 delete[] board[i];
             }
-            delete[] board;
+        delete[] board;
         }
 
     }
