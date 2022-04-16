@@ -78,7 +78,7 @@ void MoveV(char**board, Board b, int &row, int &col, int dr){
 }
 
 //IN GAME  ########################################################################################################################-
-void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
+int Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     system("cls");
     string* background = new string[b.rows*5*2];
     string bg_name = "BGs\\BG.txt";
@@ -96,7 +96,10 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
 
 
     //----------------------
-    bool exist = true;
+    int exit = 0; // 0: keep playing
+                  // 1: No legal move left
+                  // 2: all clear
+                  // 3: Esc
     int key_event;
     int col = 1,row = 1;
     Pair p[2];
@@ -105,8 +108,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
     time_t curent, past;
     curent = time(NULL);
 
-    while(exist){
-
+    while(exit == 0){
         //time
         past = curent;
         curent = time(NULL);
@@ -128,7 +130,7 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
             }break;
             //27 for escape ESC
             case 27:{
-                exist = false;
+                exit = 3;
                 break; 
             }
             //Move right
@@ -171,17 +173,20 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                 Setcolor(table[row][col], "\e[45m");
                 //Control flow
                 if(count == 2){
+                    //Marking
                     if((p[0].row == p[1].row) && (p[0].col == p[1].col)){
                         Recolor(table[p[0].row][p[0].col], "\e[45m");
                         Recolor(table[p[1].row][p[1].col], "\e[45m");
                         count = 0;
                         continue;
                     }
-                    //Upadate Screen
+                    //Upadate Screen - show the marker
                     drawBoard(table, b, col, row, timer, background);
+                    //Check valid matching
                     if((board[p[0].row][p[0].col] == board[p[1].row][p[1].col]) && (board[p[0].row][p[0].col] != ' ')){
-                        List Queue;
-                        // Checking
+                        //Path
+                        List Queue; 
+                        // Check valid Connection
                         if(CheckConect(board, b, p, &Queue)){
                             //Redraw board
                             DrawPath(table, &Queue);
@@ -190,18 +195,14 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
                             DeletePath(table, &Queue);
                             //Delete pokemon
                             board[p[0].row][p[0].col] = board[p[1].row][p[1].col] = ' ';
-                            
+                            //Shift the board to left at difficult mode
                             if(difficult)
                                 Difficulty(board, b, p, helper);
-                            
                             //Check if there are any legal move left
-                            int flag = check(board, b, helper);
-                            if(flag == 2) exist = false;
-                            else {
-                                while(flag == 1){
-                                    shuffle(board, b);
-                                    flag = check(board, b, helper);
-                                }
+                            exit = check(board, b, helper);
+                            while(exit == 1){
+                                shuffle(board, b);
+                                exit = check(board, b, helper);
                             }
                             //reset Queue
                             removeAll(&Queue);
@@ -232,6 +233,8 @@ void Client(char **board, Board b, bool difficult, Pair *helper, int &timer){
         delete[] table[i];
     }
     delete[] table;
+
+    return exit;
 }
 
 void Game(){
@@ -286,7 +289,8 @@ void Game(){
 
         //ROUND Loop
         timer = 0;
-        while(b.rows < 8){
+        int flag = 0;
+        while(b.rows < 8 && flag != 3){
             do{
                 board = createBoard(b);
                 if (check(board, b, helper))
@@ -298,12 +302,12 @@ void Game(){
                 }
                 else break;
             }while(true);
-            Client(board,b, isDiff, helper, timer);
+            flag = Client(board,b, isDiff, helper, timer);
                     // delete board
             for(int i = 0; i < b.rows; i++){
                 delete[] board[i];
             }
-        delete[] board;
+            delete[] board;
         }
 
     }
